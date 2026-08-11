@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>منصة إنشاء وتشغيل بوتات ماين كرافت</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, sans-serif; }
+        body { 
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e); 
+            color: #fff; 
+            min-height: 100vh; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            padding: 20px;
+        }
+        .container { 
+            background: rgba(30, 30, 46, 0.75); 
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 30px; 
+            border-radius: 16px; 
+            width: 100%; 
+            max-width: 450px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); 
+        }
+        h2 { 
+            text-align: center; 
+            color: #00ffcc; 
+            margin-bottom: 20px; 
+            font-size: 24px;
+            text-shadow: 0 0 10px rgba(0,255,204,0.3);
+        }
+        /* صندوق التنبيه الهام */
+        .warning-box {
+            background: rgba(229, 57, 53, 0.15);
+            border: 1px solid #e53935;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            line-height: 1.5;
+            color: #ff8a80;
+        }
+        .warning-box strong {
+            color: #ff5252;
+            display: block;
+            margin-bottom: 4px;
+        }
+        label { font-size: 13px; color: #b0bec5; display: block; margin-top: 10px; margin-bottom: 4px; }
+        input { 
+            width: 100%; 
+            padding: 12px; 
+            border-radius: 8px; 
+            border: 1px solid #444; 
+            background: rgba(18, 18, 26, 0.8); 
+            color: #fff; 
+            font-size: 14px; 
+            transition: 0.3s;
+        }
+        input:focus { 
+            outline: none; 
+            border-color: #00ffcc; 
+            box-shadow: 0 0 8px rgba(0,255,204,0.4); 
+        }
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        button { 
+            flex: 1;
+            padding: 12px; 
+            border-radius: 8px; 
+            border: none; 
+            font-size: 15px; 
+            font-weight: bold; 
+            cursor: pointer; 
+            transition: 0.3s; 
+        }
+        .btn-create { 
+            background: linear-gradient(135deg, #00b09b, #96c93d); 
+            color: white; 
+            box-shadow: 0 4px 15px rgba(0,176,155,0.4);
+        }
+        .btn-create:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,176,155,0.6); }
+        
+        .btn-stop { 
+            background: linear-gradient(135deg, #ff416c, #ff4b2b); 
+            color: white; 
+            box-shadow: 0 4px 15px rgba(255,65,108,0.4);
+        }
+        .btn-stop:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(255,65,108,0.6); }
+
+        #status { 
+            margin-top: 20px; 
+            text-align: center; 
+            font-weight: bold; 
+            font-size: 14px; 
+            color: #00ffcc; 
+            min-height: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>🤖 تحكم بوتات ماين كرافت</h2>
+        
+        <!-- رسالة التنبيه الإجبارية المطلوبة -->
+        <div class="warning-box">
+            <strong>⚠️ تنبيه هامة جداً قبل الإنشاء:</strong>
+            تأكد أن سيرفرك مثبّت عليه بلوقن <b>ViaVersion</b> و <b>ViaBackwards</b>، لأن البوت قد يتصل بإصدار مختلف. بدون هذين البلوقنين، قد يفشل البوت في الاتصال بالسيرفر!
+        </div>
+
+        <label>عنوان السيرفر (Host):</label>
+        <input type="text" id="host" value="blax2.play.hosting">
+
+        <label>البورت (اتركه فارغاً لو افتراضي):</label>
+        <input type="number" id="port" placeholder="مثال: 36886 أو اتركه فارغاً">
+
+        <label>اسم البوت:</label>
+        <input type="text" id="username" value="BLAX_BOT">
+
+        <label>إصدار السيرفر:</label>
+        <input type="text" id="version" value="1.21.1">
+        
+        <div class="btn-group">
+            <button class="btn-create" onclick="startBot()">إنشاء وتشغيل 🚀</button>
+            <button class="btn-stop" onclick="stopBot()">إيقاف البوت 🛑</button>
+        </div>
+        
+        <p id="status">الموقع جاهز لخدمتك بواسطة كاراس...</p>
+    </div>
+
+    <script>
+        async function startBot() {
+            const host = document.getElementById('host').value;
+            const port = document.getElementById('port').value;
+            const username = document.getElementById('username').value;
+            const version = document.getElementById('version').value;
+            const status = document.getElementById('status');
+
+            status.style.color = "#ffeb3b";
+            status.innerText = "⏳ جاري إنشاء البوت وإرساله للسيرفر...";
+
+            const response = await fetch('/start-bot', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ host, port, username, version })
+            });
+
+            const result = await response.json();
+            status.style.color = "#00ffcc";
+            status.innerText = result.message;
+        }
+
+        async function stopBot() {
+            const status = document.getElementById('status');
+            status.style.color = "#ff9800";
+            status.innerText = "⏳ جاري إيقاف البوت...";
+
+            const response = await fetch('/stop-bot', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            });
+
+            const result = await response.json();
+            status.style.color = "#ff4b2b";
+            status.innerText = result.message;
+        }
+    </script>
+
+</body>
+</html>
